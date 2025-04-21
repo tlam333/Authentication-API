@@ -7,6 +7,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/*UserService: Business logic layer
+Handles:
+Hashing the password
+creating a new user object
+Saving it to DB
+
+*/
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
