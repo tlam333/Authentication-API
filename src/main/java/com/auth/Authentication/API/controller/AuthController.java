@@ -1,9 +1,13 @@
 package com.auth.Authentication.API.controller;
 
+import com.auth.Authentication.API.config.Jwtutil;
 import com.auth.Authentication.API.service.UserService;
+import com.auth.Authentication.API.web.AuthResponse;
+import com.auth.Authentication.API.web.LoginRequest;
 import com.auth.Authentication.API.web.RegisterRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,19 +21,34 @@ This is a REST controller that handles HTTP requests:
 -Passes it to the service layer
 */
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/auth")
-@RequiredArgsConstructor
 public class AuthController {
-    private final UserService userService;
 
-    public AuthController(UserService userService) {
-        this.userService = userService;
-    }
+    private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
+    private final Jwtutil jwtUtil;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest req){
         userService.register(req);
         return ResponseEntity.ok("User Registered");
+
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest req){
+        //Get user from database
+        var user = userService.loadUserByUsername(req.getUsername());
+
+        //Check Password
+        if (!passwordEncoder.matches(req.getPassword(), user.getPassword())) {
+            return ResponseEntity.status(401).body("Invalid credentials");
+        }
+
+        // Generate JSON Web Token (JWT)
+        String token = jwtUtil.generateToken(user.getUsername());
+        return ResponseEntity.ok(new AuthResponse(token));
     }
 }
