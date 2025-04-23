@@ -21,7 +21,7 @@ This is a REST controller that handles HTTP requests:
 -Passes it to the service layer
 */
 
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -29,6 +29,14 @@ public class AuthController {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final Jwtutil jwtUtil;
+
+    // Manually define a constructor as Lombok is not recognised by Intellij for now
+    public AuthController(UserService userService, PasswordEncoder passwordEncoder, Jwtutil jwtUtil) {
+        this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
+    }
+
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest req){
